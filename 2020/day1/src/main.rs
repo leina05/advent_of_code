@@ -5,11 +5,12 @@ use std::io::BufReader;
 fn main() {
     let file = File::open("day1_input.txt").unwrap();
     let reader = BufReader::new(file);
-    let mut nums: Vec<i64> = reader
+    let nums: Vec<i64> = reader
         .lines()
         .into_iter()
         .map(|l| l.unwrap().parse::<i64>().unwrap())
         .collect();
+    find_two(nums.clone());
     find_three(nums);
 }
 

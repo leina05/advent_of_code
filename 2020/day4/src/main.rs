@@ -1,12 +1,13 @@
-use std::collections::{HashMap, HashSet};
-// use std::fmt::{Error, Result};
+// https://adventofcode.com/2020/day/4
+
 use regex::Regex;
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::*;
 use std::result::Result;
 
 fn main() {
-    // part_one();
+    part_one();
     part_two();
 }
 

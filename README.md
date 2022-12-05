@@ -3,5 +3,6 @@
 Coding to get in the holiday spirit.
 Thanks @saolsen.
 
-- 2020: [Rust](https://www.rust-lang.org/)
-- 2021: ?
+- 2020: Rust
+- 2021: :(
+- 2022: Python

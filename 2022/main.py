@@ -190,11 +190,20 @@ def day5(part: int):
         print(message)
 
 
-
-
-
-
-
+def day6(part: int):
+    if part == 1:
+        seq_len = 4
+    else:
+        seq_len = 14
+    with open("input/day6.txt", "r") as f:
+        input = f.readline()
+        for i in range(len(input)):
+            if i >= seq_len - 1:
+                seq = input[i-(seq_len-1):i+1]
+                if len(set(seq)) == seq_len:
+                    print(seq)
+                    print(i + 1)
+                    break
 
 
 def main():
@@ -207,7 +216,10 @@ def main():
     # day4(part=1)
     # day4(part=2)
     # day5(part=1)
-    day5(part=2)
+    # day5(part=2)
+    # day6(part=1)
+    day6(part=2)
+
 
 if __name__ == "__main__":
     main()

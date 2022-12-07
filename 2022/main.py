@@ -1,5 +1,3 @@
-
-
 from pprint import pprint
 
 
@@ -53,7 +51,7 @@ def day2(part: int):
         total = 0
         for l in input:
             chars = l.split(" ")
-            assert(len(chars) == 2)
+            assert len(chars) == 2
             first = chars[0].lstrip()
             second = chars[1].rstrip()
             if part == 1:
@@ -80,6 +78,7 @@ def day2(part: int):
 
     print(total)
 
+
 def day3(part: int):
     def get_priority(c):
         A = 97
@@ -101,7 +100,7 @@ def day3(part: int):
         for i, l in enumerate(input):
             if part == 1:
                 size = len(l)
-                mid = int(size/2)
+                mid = int(size / 2)
                 first = l[:mid]
                 second = l[mid:]
                 set1 = set(first)
@@ -143,6 +142,7 @@ def day4(part: int):
                     count += 1
     print(count)
 
+
 def day5(part: int):
     with open("input/day5.txt", "r") as f:
         input = f.readlines()
@@ -179,7 +179,6 @@ def day5(part: int):
                     stacks[f] = stacks.get(f)[:-n]
                     stacks.get(t).extend(cs)
 
-
         pprint(stacks)
         message = ""
         keys = [int(k) for k in stacks.keys()]
@@ -199,11 +198,81 @@ def day6(part: int):
         input = f.readline()
         for i in range(len(input)):
             if i >= seq_len - 1:
-                seq = input[i-(seq_len-1):i+1]
+                seq = input[i - (seq_len - 1) : i + 1]
                 if len(set(seq)) == seq_len:
                     print(seq)
                     print(i + 1)
                     break
+
+
+def day7(part: int):
+    with open("input/day7.txt", "r") as f:
+        input = f.readlines()
+        tree = {}
+        stack = []
+        # create graph
+        for l in input:
+            if l.isspace():
+                continue
+            parts = l.split(" ")
+            parts = [p.strip() for p in parts]
+            if parts[0] == "$":
+                if parts[1] == "cd":
+                    assert len(parts) == 3
+                    if parts[2] == "..":
+                        stack.pop()
+                    else:
+                        stack.append(parts[2])
+                elif parts[1] == "ls":
+                    continue
+                else:
+                    raise Exception(f"unexpected pattern: {l}")
+            elif parts[0] == "dir":
+                assert len(parts) == 2
+                key = "".join(stack)
+                if tree.get(key) is None:
+                    tree[key] = {"dirs": set(), "files": set()}
+                tree[key]["dirs"].add(parts[1])
+            else:
+                assert len(parts) == 2
+                key = "".join(stack)
+                if tree.get(key) is None:
+                    tree[key] = {"dirs": set(), "files": set()}
+                tree[key]["files"].add((int(parts[0]), parts[1]))
+
+
+        sizes = {}
+        def sum_files(current: str) -> int:
+            node = tree[current]
+            total = sum([s[0] for s in node["files"]])
+            for d in node["dirs"]:
+                total += sum_files(current+d)
+            sizes[current] = total
+            return total
+
+        sum_files("/")
+
+        if part == 1:
+            LIMIT=100000
+            print(sum([v for (_, v) in sizes.items() if v <= LIMIT]))
+        else:
+            TOTAL_DISK = 70000000
+            REQ_DISK_FREE = 30000000
+            disk_used = sizes["/"]
+            disk_free = TOTAL_DISK - disk_used
+            to_delete = REQ_DISK_FREE - disk_free
+            min = disk_used
+            for (_, v) in sizes.items():
+                if v >= to_delete and v < min:
+                    min = v
+            print(min)
+
+
+
+
+
+
+
 
 
 def main():
@@ -218,7 +287,9 @@ def main():
     # day5(part=1)
     # day5(part=2)
     # day6(part=1)
-    day6(part=2)
+    # day6(part=2)
+    # day7(part=1)
+    day7(part=2)
 
 
 if __name__ == "__main__":

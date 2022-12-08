@@ -1,4 +1,5 @@
 from pprint import pprint
+import numpy as np
 
 
 def day1(part: int):
@@ -240,20 +241,20 @@ def day7(part: int):
                     tree[key] = {"dirs": set(), "files": set()}
                 tree[key]["files"].add((int(parts[0]), parts[1]))
 
-
         sizes = {}
+
         def sum_files(current: str) -> int:
             node = tree[current]
             total = sum([s[0] for s in node["files"]])
             for d in node["dirs"]:
-                total += sum_files(current+d)
+                total += sum_files(current + d)
             sizes[current] = total
             return total
 
         sum_files("/")
 
         if part == 1:
-            LIMIT=100000
+            LIMIT = 100000
             print(sum([v for (_, v) in sizes.items() if v <= LIMIT]))
         else:
             TOTAL_DISK = 70000000
@@ -268,11 +269,71 @@ def day7(part: int):
             print(min)
 
 
+def find_visible(arr):
+    v = set()
+    max = 0
+    for i, n in enumerate(arr):
+        n = int(n)
+        if i == 0 or n > max:
+            max = n
+            v.add(i)
+    return v
 
 
+def day8(part: int):
+    with open("input/day8.txt", "r") as f:
+        input = f.readlines()
+        input = [list(row.strip()) for row in input]
+        arr = np.array(input)
+        visible = 0
+        max_score = 0
+        rows = len(arr)
+        cols = len(arr[0])
+        for m in range(rows):
+            for n in range(cols):
+                if m == 0 or m == rows - 1 or n == 0 or n == cols - 1:
+                    visible += 1
+                    continue
+                tree = arr[m][n]
+                row = arr[m]
+                left = row[:n]
+                right = row[n + 1 :]
 
+                col = arr[:, n]
+                up = col[:m]
+                down = col[m + 1 :]
+                if (
+                    tree > max(left)
+                    or tree > max(right)
+                    or tree > max(up)
+                    or tree > max(down)
+                ):
+                    visible += 1
 
+                left_d = min([n - i for i, t in enumerate(left) if t >= tree or i == 0])
+                right_d = min(
+                    [
+                        i + 1
+                        for i, t in enumerate(right)
+                        if t >= tree or i == len(right) - 1
+                    ]
+                )
+                up_d = min([m - i for i, t in enumerate(up) if t >= tree or i == 0])
+                down_d = min(
+                    [
+                        i + 1
+                        for i, t in enumerate(down)
+                        if t >= tree or i == len(down) - 1
+                    ]
+                )
+                score = left_d * right_d * up_d * down_d
+                if score > max_score:
+                    max_score = score
 
+        if part == 1:
+            print(visible)
+        else:
+            print(max_score)
 
 
 def main():
@@ -289,7 +350,9 @@ def main():
     # day6(part=1)
     # day6(part=2)
     # day7(part=1)
-    day7(part=2)
+    # day7(part=2)
+    # day8(part=1)
+    day8(part=2)
 
 
 if __name__ == "__main__":

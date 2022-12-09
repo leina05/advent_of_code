@@ -335,6 +335,63 @@ def day8(part: int):
         else:
             print(max_score)
 
+def day9(part: int):
+    with open("input/day9.txt", "r") as f:
+        input = f.readlines()
+        visited = set()
+        if part == 1:
+            k = 2
+        else:
+            k = 10
+        positions = [[0,0] for _ in range(k)]
+        visited.add(tuple(positions[k-1]))
+        for i, l in enumerate(input):
+            parts = l.split(" ")
+            d = parts[0].strip()
+            n = parts[1].strip()
+
+            for _ in range(int(n)):
+                if d == "R":
+                    positions[0][0] += 1
+                elif d == "L":
+                    positions[0][0] -= 1
+                elif d == "U":
+                    positions[0][1] += 1
+                elif d == "D":
+                    positions[0][1] -= 1
+
+                for i in range(1,k):
+                    h_x = positions[i-1][0]
+                    h_y = positions[i-1][1]
+                    t_x = positions[i][0]
+                    t_y = positions[i][1]
+
+                    if abs(h_x - t_x) > 1:
+                        if t_x < h_x:
+                            t_x += 1
+                        elif t_x > h_x:
+                            t_x -= 1
+                        if t_y > h_y:
+                            t_y -= 1
+                        elif t_y < h_y:
+                            t_y += 1
+                    elif abs(h_y - t_y) > 1:
+                        if t_y < h_y:
+                            t_y += 1
+                        elif t_y > h_y:
+                            t_y -= 1
+                        if t_x > h_x:
+                            t_x -= 1
+                        elif t_x < h_x:
+                            t_x += 1
+                    positions[i][0] = t_x
+                    positions[i][1] = t_y
+
+                visited.add(tuple(positions[k-1]))
+
+        print(len(visited))
+
+
 
 def main():
     # day1(part=1)
@@ -352,7 +409,9 @@ def main():
     # day7(part=1)
     # day7(part=2)
     # day8(part=1)
-    day8(part=2)
+    # day8(part=2)
+    day9(part=1)
+    day9(part=2)
 
 
 if __name__ == "__main__":

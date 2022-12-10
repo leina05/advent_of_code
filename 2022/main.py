@@ -391,6 +391,44 @@ def day9(part: int):
 
         print(len(visited))
 
+def day10(part: int):
+    def get_crt_coords(cycle: int):
+        x = (cycle-1) % 40
+        y = int((cycle-1) / 40)
+        return (x, y)
+    with open("input/day10.txt", "r") as f:
+        input = f.readlines()
+        cycle = 1
+        x = 1
+        sum = 0
+        screen = [[' ' for _ in range(40)] for _ in range(6)]
+        for l in input:
+            if part == 1:
+                if cycle == 20 or (cycle-20) % 40 == 0:
+                    sum += x * cycle
+            else:
+                (col, row) = get_crt_coords(cycle)
+                if col in [x-1, x, x+1]:
+                    screen[row][col] = '#'
+            parts = [c.strip() for c in l.split(" ")]
+            if parts[0] == "noop":
+                cycle += 1
+            elif parts[0] == "addx":
+                cycle += 1
+                if part == 1:
+                    if cycle == 20 or (cycle-20) % 40 == 0:
+                        sum += x * cycle
+                else:
+                    (col, row) = get_crt_coords(cycle)
+                    if col in [x-1, x, x+1]:
+                        screen[row][col] = '#'
+                cycle += 1
+                x += int(parts[1])
+        if part == 1:
+            print(sum)
+        else:
+            for r in screen:
+                print("".join(r))
 
 
 def main():
@@ -410,8 +448,11 @@ def main():
     # day7(part=2)
     # day8(part=1)
     # day8(part=2)
-    day9(part=1)
-    day9(part=2)
+    # day9(part=1)
+    # day9(part=2)
+    # day10(part=1)
+    day10(part=2)
+
 
 
 if __name__ == "__main__":

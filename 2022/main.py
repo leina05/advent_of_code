@@ -1,5 +1,7 @@
+import math
 from pprint import pprint
 import numpy as np
+import copy
 
 
 def day1(part: int):
@@ -431,6 +433,68 @@ def day10(part: int):
                 print("".join(r))
 
 
+def day11(part: int):
+    monkeys = {}
+    # build monkey init state
+    with open("input/day11.txt", "r") as f:
+        input = f.readlines()
+        current_monkey = 0
+        for l in input:
+            l = l.strip()
+            if l.startswith("Monkey"):
+                current_monkey = int(l.split(" ")[1][0])
+                monkeys[current_monkey] = {}
+            elif l.startswith("Starting items:"):
+                monkeys[current_monkey]["items"] = [int(p.strip()) for p in l.split(":")[1].split(",")]
+            elif l.startswith("Operation:"):
+                monkeys[current_monkey]["op"] = l.split("=")[1].strip().split(" ")[1:]
+            elif l.startswith("Test:"):
+                monkeys[current_monkey]["div_by"] = int(l.split(" ")[-1].strip())
+            elif l.startswith("If true:"):
+                monkeys[current_monkey]["true_monkey"] = int(l.split(' ')[-1].strip())
+            elif l.startswith("If false:"):
+                monkeys[current_monkey]["false_monkey"] = int(l.split(' ')[-1].strip())
+
+
+    lcm = math.lcm(*[m["div_by"] for m in monkeys.values()])
+
+    activity = [0 for _ in range(len(monkeys))]
+    for _ in range(20):
+        for m in range(len(monkeys)):
+            monkey = monkeys[m]
+            items = copy.deepcopy(monkey["items"])
+            monkey["items"] = []
+            for j, i in enumerate(items):
+                activity[m] += 1
+                operand = monkey["op"][1]
+                if operand == "old":
+                    operand = i
+                else:
+                    operand = int(operand)
+                # apply operation
+                if monkey["op"][0] == "*":
+                    i = i * operand
+                elif monkey["op"][0] == "+":
+                    i = i + operand
+                if part == 1:
+                    # divide by 3
+                    i = int(i / 3)
+                # test
+                if i % monkey["div_by"] == 0:
+                    true_monkey = monkey["true_monkey"]
+                    monkeys[true_monkey]["items"].append(i % lcm) # checked the sub for this guy :)
+                else:
+                    false_monkey = monkey["false_monkey"]
+                    monkeys[false_monkey]["items"].append(i % lcm)
+
+
+    pprint(activity)
+    activity.sort(reverse=True)
+    monkey_businiess = activity[0] * activity[1]
+    print(monkey_businiess)
+
+
+
 def main():
     # day1(part=1)
     # day1(part=2)
@@ -451,7 +515,9 @@ def main():
     # day9(part=1)
     # day9(part=2)
     # day10(part=1)
-    day10(part=2)
+    # day10(part=2)
+    # day11(part=1)
+    day11(part=2)
 
 
 

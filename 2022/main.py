@@ -337,6 +337,7 @@ def day8(part: int):
         else:
             print(max_score)
 
+
 def day9(part: int):
     with open("input/day9.txt", "r") as f:
         input = f.readlines()
@@ -345,8 +346,8 @@ def day9(part: int):
             k = 2
         else:
             k = 10
-        positions = [[0,0] for _ in range(k)]
-        visited.add(tuple(positions[k-1]))
+        positions = [[0, 0] for _ in range(k)]
+        visited.add(tuple(positions[k - 1]))
         for i, l in enumerate(input):
             parts = l.split(" ")
             d = parts[0].strip()
@@ -362,9 +363,9 @@ def day9(part: int):
                 elif d == "D":
                     positions[0][1] -= 1
 
-                for i in range(1,k):
-                    h_x = positions[i-1][0]
-                    h_y = positions[i-1][1]
+                for i in range(1, k):
+                    h_x = positions[i - 1][0]
+                    h_y = positions[i - 1][1]
                     t_x = positions[i][0]
                     t_y = positions[i][1]
 
@@ -389,41 +390,43 @@ def day9(part: int):
                     positions[i][0] = t_x
                     positions[i][1] = t_y
 
-                visited.add(tuple(positions[k-1]))
+                visited.add(tuple(positions[k - 1]))
 
         print(len(visited))
 
+
 def day10(part: int):
     def get_crt_coords(cycle: int):
-        x = (cycle-1) % 40
-        y = int((cycle-1) / 40)
+        x = (cycle - 1) % 40
+        y = int((cycle - 1) / 40)
         return (x, y)
+
     with open("input/day10.txt", "r") as f:
         input = f.readlines()
         cycle = 1
         x = 1
         sum = 0
-        screen = [[' ' for _ in range(40)] for _ in range(6)]
+        screen = [[" " for _ in range(40)] for _ in range(6)]
         for l in input:
             if part == 1:
-                if cycle == 20 or (cycle-20) % 40 == 0:
+                if cycle == 20 or (cycle - 20) % 40 == 0:
                     sum += x * cycle
             else:
                 (col, row) = get_crt_coords(cycle)
-                if col in [x-1, x, x+1]:
-                    screen[row][col] = '#'
+                if col in [x - 1, x, x + 1]:
+                    screen[row][col] = "#"
             parts = [c.strip() for c in l.split(" ")]
             if parts[0] == "noop":
                 cycle += 1
             elif parts[0] == "addx":
                 cycle += 1
                 if part == 1:
-                    if cycle == 20 or (cycle-20) % 40 == 0:
+                    if cycle == 20 or (cycle - 20) % 40 == 0:
                         sum += x * cycle
                 else:
                     (col, row) = get_crt_coords(cycle)
-                    if col in [x-1, x, x+1]:
-                        screen[row][col] = '#'
+                    if col in [x - 1, x, x + 1]:
+                        screen[row][col] = "#"
                 cycle += 1
                 x += int(parts[1])
         if part == 1:
@@ -445,16 +448,17 @@ def day11(part: int):
                 current_monkey = int(l.split(" ")[1][0])
                 monkeys[current_monkey] = {}
             elif l.startswith("Starting items:"):
-                monkeys[current_monkey]["items"] = [int(p.strip()) for p in l.split(":")[1].split(",")]
+                monkeys[current_monkey]["items"] = [
+                    int(p.strip()) for p in l.split(":")[1].split(",")
+                ]
             elif l.startswith("Operation:"):
                 monkeys[current_monkey]["op"] = l.split("=")[1].strip().split(" ")[1:]
             elif l.startswith("Test:"):
                 monkeys[current_monkey]["div_by"] = int(l.split(" ")[-1].strip())
             elif l.startswith("If true:"):
-                monkeys[current_monkey]["true_monkey"] = int(l.split(' ')[-1].strip())
+                monkeys[current_monkey]["true_monkey"] = int(l.split(" ")[-1].strip())
             elif l.startswith("If false:"):
-                monkeys[current_monkey]["false_monkey"] = int(l.split(' ')[-1].strip())
-
+                monkeys[current_monkey]["false_monkey"] = int(l.split(" ")[-1].strip())
 
     lcm = math.lcm(*[m["div_by"] for m in monkeys.values()])
 
@@ -482,16 +486,67 @@ def day11(part: int):
                 # test
                 if i % monkey["div_by"] == 0:
                     true_monkey = monkey["true_monkey"]
-                    monkeys[true_monkey]["items"].append(i % lcm) # checked the sub for this guy :)
+                    monkeys[true_monkey]["items"].append(
+                        i % lcm
+                    )  # checked the sub for this guy :)
                 else:
                     false_monkey = monkey["false_monkey"]
                     monkeys[false_monkey]["items"].append(i % lcm)
-
 
     pprint(activity)
     activity.sort(reverse=True)
     monkey_businiess = activity[0] * activity[1]
     print(monkey_businiess)
+
+
+def day12(part: int):
+    def find_path_len(map, start):
+        to_visit = [start]
+        parents = {start: None}
+
+        while len(to_visit) != 0:
+            (row, col) = to_visit.pop(0)
+            c = map[row][col]
+            if c == "E":
+                parent = parents[(row, col)]
+                path = 0
+                while(parent != None):
+                    parent = parents[parent]
+                    path += 1
+                return path
+            if c == "S":
+                c = "a"
+            neighbors = [
+                (max(row - 1, 0), col),
+                (min(row + 1, max_row), col),
+                (row, max(col - 1, 0)), (row, min(col + 1, max_col)),
+            ]
+            for n in neighbors:
+                c_n = map[n[0]][n[1]]
+                if c_n == "E":
+                    c_n = "z"
+                if not n in parents.keys() and ord(c_n) - ord(c) <= 1:
+                    to_visit.append(n)
+                    parents[n] = (row,col)
+
+    with open("input/day12_test.txt", "r") as f:
+        input = [list(l.strip()) for l in f.readlines()]
+        input = np.array(input)
+        max_col = len(input[0]) - 1
+        max_row = len(input) - 1
+
+        start = tuple(np.argwhere(input == "S")[0])
+        if part == 1:
+            path_len = find_path_len(input, start)
+            print(path_len)
+        if part == 2:
+            starts = [tuple(s) for s in np.argwhere(input == "a")]
+            shortest = find_path_len(input, start)
+            for s in starts:
+                path_len = find_path_len(input, s)
+                if path_len and path_len < shortest:
+                    shortest = path_len
+            print(shortest)
 
 
 
@@ -517,8 +572,9 @@ def main():
     # day10(part=1)
     # day10(part=2)
     # day11(part=1)
-    day11(part=2)
-
+    # day11(part=2)
+    # day12(part=1)
+    day12(part=2)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import functools
 import math
 from pprint import pprint
 import numpy as np
@@ -529,7 +530,7 @@ def day12(part: int):
                     to_visit.append(n)
                     parents[n] = (row,col)
 
-    with open("input/day12_test.txt", "r") as f:
+    with open("input/day12.txt", "r") as f:
         input = [list(l.strip()) for l in f.readlines()]
         input = np.array(input)
         max_col = len(input[0]) - 1
@@ -547,6 +548,60 @@ def day12(part: int):
                 if path_len and path_len < shortest:
                     shortest = path_len
             print(shortest)
+
+def day13(part: int):
+    def in_order(left, right) -> bool:
+        if isinstance(left, int) and isinstance(right, int):
+            if left == right:
+                return 0
+            if left < right:
+                return -1
+            else:
+                return 1
+        elif isinstance(left, list) and isinstance(right, list):
+            for (l, r) in zip(left, right):
+                r = in_order(l, r)
+                if r != 0: return r
+            if len(left) == len(right):
+                return 0
+            if len(left) < len(right):
+                return -1
+            else:
+                return 1
+        elif isinstance(left, int):
+            return in_order([left], right)
+        elif isinstance(right, int):
+            return in_order(left, [right])
+        return 0
+
+    with open("input/day13.txt", "r") as f:
+        pairs = [eval(l.strip()) for l in f.readlines() if not l.isspace()]
+        i = 0
+        correct = []
+        if part == 1:
+            while i+1 < len(pairs):
+                print("")
+                print(f"pair: {int(i/2 + 1)}")
+                left = pairs[i]
+                right = pairs[i+1]
+
+                res = in_order(left, right)
+                print(res)
+                if res == -1:
+                    correct.append(int(i/2 + 1))
+                i += 2
+            print(correct)
+            print(sum(correct))
+        else:
+            pairs.append([[2]])
+            pairs.append([[6]])
+            s = sorted(pairs, key=functools.cmp_to_key(in_order))
+            i1 = s.index([[2]]) + 1
+            i2 = s.index([[6]]) + 1
+
+            print(i1*i2)
+
+
 
 
 
@@ -574,7 +629,9 @@ def main():
     # day11(part=1)
     # day11(part=2)
     # day12(part=1)
-    day12(part=2)
+    # day12(part=2)
+    # day13(part=1)
+    day13(part=2)
 
 
 if __name__ == "__main__":

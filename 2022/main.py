@@ -601,6 +601,64 @@ def day13(part: int):
 
             print(i1*i2)
 
+def day14(part: int):
+    def print_blocked(blocked):
+        offset = min([p[0] for p in blocked])
+        norm_blocked = [(p[0]-offset, p[1]) for p in blocked]
+        base = max(p[0] for p in blocked) - offset
+        grid = [["." for _ in range(base + 1)] for _ in range(floor)]
+        print(norm_blocked)
+        for p in norm_blocked:
+            grid[p[1]][p[0]] = "#"
+        for r in grid:
+            print("".join(r))
+    with open("input/day14.txt", "r") as f:
+        paths = [[tuple([int(i) for i in c.strip().split(",")]) for c in l.strip().split("->")] for l in f.readlines()]
+        blocked = set()
+        for path in paths:
+            rock = []
+            last_point = path[0]
+            for i in range(1, len(path)):
+                point = path[i]
+                if point[0] == last_point[0]:
+                    start_y = min(point[1], last_point[1])
+                    end_y = max(point[1], last_point[1])
+                    rock.extend([(point[0], y) for y in range(start_y, end_y+1)])
+                elif point[1] == last_point[1]:
+                    start_x = min(point[0], last_point[0])
+                    end_x = max(point[0], last_point[0])
+                    rock.extend([(x, point[1]) for x in range(start_x, end_x+1)])
+                last_point = point
+            blocked.update(rock)
+
+        max_y = max(p[1] for p in blocked) # where abyss starts
+        start = (500, 0)
+        curr_location = start
+        sand_count = 0
+        floor = max_y + 2
+
+        while(True):
+            to_try = [(curr_location[0], curr_location[1] + 1), (curr_location[0] - 1, curr_location[1] + 1), (curr_location[0] + 1, curr_location[1] + 1)]
+            next_location = curr_location
+            for p in to_try:
+                if not p in blocked and not p[1] == floor:
+                    next_location = p
+                    break
+            # if all paths are blocked, go to next grain of sand
+            if next_location == curr_location:
+                blocked.add(curr_location)
+                sand_count += 1
+                if part != 1 and curr_location == start:
+                    break
+                curr_location = start
+            else:
+                curr_location = next_location
+            if part == 1 and curr_location[1] >= max_y:
+                    break
+        print(sand_count)
+        # print_blocked(blocked)
+
+
 
 
 
@@ -631,7 +689,9 @@ def main():
     # day12(part=1)
     # day12(part=2)
     # day13(part=1)
-    day13(part=2)
+    # day13(part=2)
+    # day14(part=1)
+    day14(part=2)
 
 
 if __name__ == "__main__":

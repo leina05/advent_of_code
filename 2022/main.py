@@ -659,6 +659,116 @@ def day14(part: int):
         # print_blocked(blocked)
 
 
+def day15(part: int):
+    def loc_from_part(part):
+        loc = part.strip().split(",")
+        x = int(loc[0].split("=")[-1])
+        y = int(loc[1].split("=")[-1])
+        # print(f"({x}, {y})")
+        return (x, y)
+
+    def update_window_map(window_map, key, other):
+        windows = window_map.get(key)
+        if windows is None:
+            windows = [list(other)]
+        merge_windows(windows, other)
+        window_map[key] = windows
+
+    def merge(window, other):
+        merged = False
+        if other[0] <= window[1]+1 and other[1] >= window[1]:
+            window[1] = other[1]
+            merged = True
+        if other[1] >= window[0]-1 and other[0] <= window[0]:
+            window[0] = other[0]
+            merged = True
+        if other[0] >= window[0] and other[1] <= window[1]:
+            return True
+        return merged
+
+
+    def merge_windows(windows, other):
+        for window in windows:
+            if merge(window, other):
+                return
+        windows.append(list(other))
+
+    def merge_all(windows):
+        windows = sorted(windows, key=lambda w: w[0])
+        i = 0
+        while i + 1 < len(windows):
+            if merge(windows[i], windows[i+1]):
+                windows.pop(i+1)
+            else:
+                i += 1
+        return windows
+
+    def find_empty(windows, lower, upper):
+        for x in range(lower, upper+1):
+            windows = x_windows[x]
+            # if windows can't be merged, then there is a gap
+            # if not merge_windows(windows[0], windows[1]):
+            windows = merge_all(windows)
+            # windows = sorted(windows, key=lambda w: w[0])
+            if [lower, upper] in windows:
+                continue
+            if windows[0][0] != lower:
+                y = windows[0][0]
+                return (x, y)
+            elif windows[-1][1] != upper:
+                y = windows[-1][1]
+                return (x, y)
+            for i in range(len(windows)-1):
+                if windows[i+1][0]-windows[i][1] > 1:
+                    assert(windows[i+1][0]-windows[i][1] == 2)
+                    y = windows[i+1][0]-1
+                    return (x, y)
+
+    with open("input/day15.txt", "r") as f:
+        input = [l.strip() for l in f.readlines()]
+        target = 2000000
+        count = set()
+        lower = 0
+        upper = 4000000
+        x_windows = {}
+
+        for l in input:
+            parts = l.split(":")
+            (sx, sy) = loc_from_part(parts[0])
+            (bx, by) = loc_from_part(parts[1])
+            if sy == target:
+                count.add(sx)
+
+            if by == target:
+                count.add(bx)
+
+            dist = abs(sx-bx) + abs(sy-by)
+
+            if part == 1 and target >= sy-dist and target <= sy + dist:
+                    # when y = target:
+                    # dist - abs(sy-target) = abs(sx-x)
+                    # x = sx +/- (dist - abs(sy-target))
+                    xs = list(range(sx, sx + (dist - abs(sy-target)) + 1))
+                    count.update(xs)
+                    xs = list(range(sx - (dist - abs(sy-target)), sx+1))
+                    count.update(xs)
+            elif part != 1:
+                for d in range(dist+1):
+                    xs = [sx-d, sx+d]
+                    x_window = (max(sy-(dist-d), lower), min(sy+(dist-d), upper))
+
+                    for x in xs:
+                        if (x >= lower and x <= upper):
+                            update_window_map(x_windows, x, x_window)
+        if part == 1:
+            print(len(count)-1)
+        else:
+            (x, y) = find_empty(x_windows, lower, upper)
+            print(f"({x}, {y})")
+            print(x*4000000+y)
+
+
+
 
 
 
@@ -691,7 +801,10 @@ def main():
     # day13(part=1)
     # day13(part=2)
     # day14(part=1)
-    day14(part=2)
+    # day14(part=2)
+    # day15(part=1)
+    day15(part=2)
+
 
 
 if __name__ == "__main__":
